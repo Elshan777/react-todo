@@ -1,6 +1,5 @@
 import React, {useState, useEffect} from 'react';
 import './App.css'
-import fetchTodos from './api/index'
 import axios from 'axios';
 
 const url = "http://localhost:8080/todo";
@@ -28,10 +27,10 @@ function TodoForm({addTodo}) {
 function Todo({todo, index, completeTodo, deleteTodo}) {
   return (
   <div className="todo">
-    <div style={{textDecoration: todo.isCompleted ? 'line-through': ''}} className="todo-text">{todo.text}</div>
+    <div style={{textDecoration: todo.completed ? 'line-through': ''}} className="todo-text">{todo.text}</div>
     <div className="btn-group">
-      <button onClick={() => completeTodo(index)} className={`btn ${todo.isCompleted ? "btn-success" : "btn-primary"}`}>
-        {todo.isCompleted ? 'Completed' : 'Complete'}
+      <button onClick={() => completeTodo(index)} className={`btn ${todo.completed ? "btn-success" : "btn-primary"}`}>
+        {todo.completed ? 'Completed' : 'Complete'}
       </button>
       <button onClick={() => deleteTodo(index)} className="btn btn-danger">x</button>
     </div>
@@ -61,7 +60,7 @@ function App() {
     setTodos(newTodos);
     const newTodo = {
       text: text,
-      isCompleted: false
+      completed: false
     }
     axios.post(`${url}`, newTodo)
       .then(res => {
@@ -71,10 +70,11 @@ function App() {
   }
 
   const completeTodo = index => {
+    let id = todos[index].id;
     const newTodos = [...todos];
-    newTodos[index].isCompleted = true;
+    newTodos[index].completed = true;
     setTodos(newTodos);
-    axios.get(`${url}/done/${index}`)
+    axios.get(`${url}/done/${id}`)
       .then(res => {
         console.log(res.data);
         console.log(todos);
@@ -83,10 +83,11 @@ function App() {
   } 
 
   const deleteTodo = index => {
+    let id = todos[index].id;
     const newTodos = [...todos];
     newTodos.splice(index, 1);
     setTodos(newTodos);
-    axios.get(`${url}/delete/${index}`)
+    axios.get(`${url}/delete/${id}`)
       .then(res => {
         console.log(res.data);
       })
