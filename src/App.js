@@ -1,5 +1,9 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import './App.css'
+import fetchTodos from './api/index'
+import axios from 'axios';
+
+const url = "http://localhost:8080/todo";
 
 
 function TodoForm({addTodo}) {
@@ -36,47 +40,71 @@ function Todo({todo, index, completeTodo, deleteTodo}) {
 }
 
 function App() {
-  const [todos, setTodos] = useState([
-    {
-      text: 'Learn about react hooks',
-      isCompleted: false
-    },
-    {
-      text: 'Meet friends',
-      isCompleted: true
-    },
-    {
-      text: 'Build cool application',
-      isCompleted: false
-    },
-  ])
+  const [todos, setTodos] = useState([]);
+
+  useEffect(() => {
+    const fetchAPI = async () =>{
+      axios.get(`${url}/todo-list`)
+        .then(res => {
+          const todos = res.data;
+          setTodos(todos);
+          console.log(todos);
+          
+      })  
+    }
+
+    fetchAPI();
+  }, [setTodos])
 
   const addTodo = text => {
     const newTodos = [...todos, {text}];
     setTodos(newTodos);
+    const newTodo = {
+      text: text,
+      isCompleted: false
+    }
+    axios.post(`${url}`, newTodo)
+      .then(res => {
+        console.log(res.data);
+        console.log(todos);
+      })
   }
 
   const completeTodo = index => {
-    // const newTodos = todos.map(todo => (todo.index===index ? (todo.isCompleted = true) : todo));
     const newTodos = [...todos];
     newTodos[index].isCompleted = true;
     setTodos(newTodos);
+    axios.get(`${url}/done/${index}`)
+      .then(res => {
+        console.log(res.data);
+        console.log(todos);
+
+      })
   } 
 
   const deleteTodo = index => {
     const newTodos = [...todos];
     newTodos.splice(index, 1);
     setTodos(newTodos);
+    axios.get(`${url}/delete/${index}`)
+      .then(res => {
+        console.log(res.data);
+      })
   }
+
+  const todoList = ( todos ? (
+        <div className="todo-list">
+          {todos ? todos.map((todo, index) => (
+            <Todo key={index} index={index} todo={todo} completeTodo={completeTodo} deleteTodo={deleteTodo}/>
+          )) : "Loading"}
+          <TodoForm addTodo={addTodo} deleteTodo={deleteTodo}/>
+        </div>
+      ) : "Loading"
+  )
 
   return (
     <div className="app">
-        <div className="todo-list">
-          {todos.map((todo, index) => (
-            <Todo key={index} index={index} todo={todo} completeTodo={completeTodo} deleteTodo={deleteTodo}/>
-          ))}
-          <TodoForm addTodo={addTodo} deleteTodo={deleteTodo}/>
-        </div>
+        {todoList}
     </div>
   )
 
