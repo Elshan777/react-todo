@@ -2,7 +2,7 @@ import React, {useState, useEffect} from 'react';
 import './App.css'
 import axios from 'axios';
 
-const url = "http://localhost:8080/todo";
+const url = "https://angle-trio.ew.r.appspot.com/todo";
 
 
 function TodoForm({addTodo}) {
@@ -105,7 +105,7 @@ function App() {
 
   return (
     <div className="app">
-        {todoList}
+        {todoList ? todoList : "Loading"}
     </div>
   )
 
